@@ -1,0 +1,57 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  :root {
+    --brand-yellow: #ffd000;
+    --brand-gold: #ffc107;
+    --brand-magenta: #e91e63;
+    --brand-pink: #ff1493;
+    --brand-charcoal: #111111;
+    --surface-light: #f8f9fb;
+  }
+
+  html {
+    font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+    background-color: #f8f9fb;
+    color: #111111;
+    scroll-behavior: smooth;
+  }
+
+  h1, h2, h3, h4, .font-display {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  }
+
+  .font-mono-tabular {
+    font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.glass-header {
+  background: rgba(255, 208, 0, 0.86);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(17, 17, 17, 0.1);
+}
+
+.glass-dark {
+  background: rgba(17, 17, 17, 0.92);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.glow-pink {
+  box-shadow: 0 10px 28px rgba(233, 30, 99, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+.glow-pink:hover {
+  box-shadow: 0 14px 36px rgba(255, 20, 147, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "Rapidmate — Express Urban Logistics",
+  "description": "Ultra-modern express delivery and courier platform in France featuring Tap-to-Dispatch engine, interactive Paris route quote simulator, and zero-emission urban fleet.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

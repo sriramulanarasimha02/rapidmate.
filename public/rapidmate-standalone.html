@@ -1,0 +1,471 @@
+<!doctype html>
+<html lang="fr" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rapidmate — Livraison Express Urbaine & Coursiers en France</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    html { font-family: 'DM Sans', system-ui, sans-serif; background: #f8f9fb; color: #111111; }
+    h1, h2, h3, h4, .font-display { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
+    .font-mono-tabular { font-family: 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; }
+    .glass-header { background: rgba(255, 208, 0, 0.88); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid rgba(17, 17, 17, 0.1); }
+    .glass-dark { background: rgba(17, 17, 17, 0.93); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border: 1px solid rgba(255, 255, 255, 0.12); }
+    .glow-pink { box-shadow: 0 10px 28px rgba(233, 30, 99, 0.34), inset 0 1px 0 rgba(255, 255, 255, 0.25); }
+  </style>
+</head>
+<body class="bg-[#f8f9fb] text-[#111111] antialiased selection:bg-[#E91E63] selection:text-white overflow-x-hidden">
+  <!-- Full-screen 60fps Tap-to-Dispatch Canvas (Magenta + Gold Trails) -->
+  <canvas id="dispatch-canvas" aria-hidden="true" class="fixed inset-0 pointer-events-none z-40"></canvas>
+
+  <!-- Sticky Glassmorphism Top Bar -->
+  <header class="sticky top-0 z-30 h-16 glass-header">
+    <div class="max-w-6xl mx-auto h-full px-4 sm:px-6 flex items-center justify-between gap-8">
+      <!-- Custom Location Pin + Delivery Cap/Visor Logo -->
+      <a href="#top" class="inline-flex items-center gap-2.5 whitespace-nowrap shrink-0">
+        <span class="inline-flex items-center justify-center w-9 h-9 rounded-xl bg-[#111111] shrink-0">
+          <svg width="24" height="24" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+            <path d="M16 3C10.48 3 6 7.36 6 12.74C6 19.65 14.32 27.95 15.32 28.92C15.7 29.29 16.3 29.29 16.68 28.92C17.68 27.95 26 19.65 26 12.74C26 7.36 21.52 3 16 3Z" fill="#E91E63" />
+            <path d="M10.5 11.8C10.5 8.85 12.95 6.8 16 6.8C19.05 6.8 21.5 8.85 21.5 11.8H10.5Z" fill="#FF1493" stroke="#FFD000" stroke-width="1.2" />
+            <path d="M10 11.8H24.2C24.75 11.8 25.1 12.42 24.74 12.84C23.72 14.02 21.45 14.5 18.8 14.5H10.6C10.25 14.5 10 14.2 10 13.85V11.8Z" fill="#FFD000" />
+            <circle cx="16" cy="18.2" r="2.2" fill="#FFFFFF" />
+          </svg>
+        </span>
+        <span class="font-display text-lg font-extrabold tracking-tight text-[#111111]">Rapidmate</span>
+      </a>
+
+      <nav class="hidden md:flex items-center gap-7 text-sm font-semibold text-[#111111]/80">
+        <a href="#services" class="hover:text-[#111111] transition-colors whitespace-nowrap">Services</a>
+        <a href="#tarifs" class="hover:text-[#111111] transition-colors whitespace-nowrap">Tarifs</a>
+        <a href="#entreprises" class="hover:text-[#111111] transition-colors whitespace-nowrap">Entreprises</a>
+        <a href="#contact" class="hover:text-[#111111] transition-colors whitespace-nowrap">Contact</a>
+      </nav>
+
+      <div class="flex items-center gap-3 shrink-0">
+        <div class="inline-flex items-center p-0.5 rounded-lg bg-[#111111]/10 border border-[#111111]/15">
+          <button type="button" data-lang="fr" class="lang-btn px-2.5 py-1 rounded-md text-xs font-bold uppercase bg-[#111111] text-white cursor-pointer">FR</button>
+          <button type="button" data-lang="en" class="lang-btn px-2.5 py-1 rounded-md text-xs font-bold uppercase text-[#111111]/75 hover:text-[#111111] cursor-pointer">EN</button>
+        </div>
+        <a href="#contact" class="hidden sm:inline-flex items-center px-4 py-2 rounded-lg bg-[#E91E63] hover:bg-[#FF1493] text-white text-xs font-bold glow-pink whitespace-nowrap cursor-pointer" data-i18n="nav_cta">Démarrer</a>
+      </div>
+    </div>
+  </header>
+
+  <main id="top">
+    <!-- Brand Yellow Hero + Dark Charcoal Route Simulator -->
+    <section class="relative bg-gradient-to-br from-[#FFD000] via-[#FFD000] to-[#FFC107] pt-12 pb-16 sm:pt-16 sm:pb-24 px-4 sm:px-6 overflow-hidden">
+      <div class="relative max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-stretch">
+        <div class="lg:col-span-6 flex flex-col justify-center">
+          <p class="text-xs font-bold tracking-wide text-[#9D0E43] mb-4" data-i18n="hero_kicker">Paris · Lyon · Marseille · Réseau express 24/7</p>
+          <h1 class="font-display font-extrabold tracking-tight text-[#111111] leading-[1.08]" style="font-size: clamp(2.25rem, 4vw, 3.5rem);" data-i18n="hero_title">
+            La logistique urbaine instantanée, expédiée en quelques secondes.
+          </h1>
+          <p class="text-base sm:text-lg text-[#111111]/85 mt-6 leading-relaxed max-w-xl font-medium" data-i18n="hero_subtitle">
+            Coursiers B2B et B2C à la demande : motos électriques, vélos-cargos et utilitaires zéro émission déployés en moins de 35 minutes partout en France.
+          </p>
+          <div class="mt-8 flex flex-wrap items-center gap-3.5">
+            <a href="#contact" class="px-6 py-3.5 rounded-xl bg-[#E91E63] hover:bg-[#FF1493] text-white font-bold text-sm glow-pink cursor-pointer" data-i18n="hero_cta1">Commander un coursier</a>
+            <button type="button" id="open-demo-btn" class="px-5 py-3.5 rounded-xl bg-[#111111] hover:bg-[#222229] text-white font-semibold text-sm cursor-pointer" data-i18n="hero_cta2">Voir la démo interactive</button>
+          </div>
+          <p class="text-xs font-medium text-[#111111]/75 mt-5" data-i18n="hero_hint">Cliquez n’importe où sur l’écran pour tester le moteur Tap-to-Dispatch.</p>
+        </div>
+
+        <!-- Draggable Live Route Simulator -->
+        <div class="lg:col-span-6" data-no-dispatch="true">
+          <div class="glass-dark rounded-2xl p-5 sm:p-6 flex flex-col justify-between h-full text-white shadow-2xl">
+            <div class="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-white/10">
+              <div>
+                <h2 class="font-display text-sm font-semibold text-white">Simulateur de course en direct · Paris</h2>
+                <p class="text-xs text-zinc-400 mt-0.5">Déplacez les points A et B sur la carte</p>
+              </div>
+              <div class="inline-flex items-center gap-1 p-1 rounded-lg bg-[#1d1e26] border border-white/10">
+                <button type="button" data-vehicle="moto" class="veh-btn px-3 py-1.5 rounded-md text-xs font-bold bg-[#FFD000] text-[#111111] cursor-pointer">Moto</button>
+                <button type="button" data-vehicle="cargo" class="veh-btn px-3 py-1.5 rounded-md text-xs font-medium text-zinc-300 cursor-pointer">Cargo</button>
+                <button type="button" data-vehicle="van" class="veh-btn px-3 py-1.5 rounded-md text-xs font-medium text-zinc-300 cursor-pointer">Van</button>
+              </div>
+            </div>
+
+            <div id="sim-map" class="relative my-4 h-64 sm:h-72 w-full rounded-xl overflow-hidden bg-[#16171d] border border-white/10 select-none touch-none">
+              <svg viewBox="0 0 100 100" preserveAspectRatio="none" class="absolute inset-0 w-full h-full pointer-events-none">
+                <defs>
+                  <pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse">
+                    <path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="0.25" />
+                  </pattern>
+                  <linearGradient id="routeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#FFD000" />
+                    <stop offset="100%" stop-color="#FF1493" />
+                  </linearGradient>
+                </defs>
+                <rect width="100" height="100" fill="url(#grid)" />
+                <path d="M 4 64 C 22 48, 42 46, 58 55 C 72 63, 84 74, 98 85" fill="none" stroke="rgba(255,208,0,0.16)" stroke-width="2.6" stroke-linecap="round" />
+                <path id="sim-route-path" d="M 30 34 Q 51 27 73 69" fill="none" stroke="url(#routeGrad)" stroke-width="1.35" stroke-dasharray="2.5 2.5" />
+              </svg>
+
+              <button id="pin-pickup" type="button" style="left: 30%; top: 34%;" class="absolute -translate-x-1/2 -translate-y-1/2 z-20 flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[#111111]/95 border border-[#FFD000] text-xs font-semibold text-white cursor-grab">
+                <span class="w-4 h-4 rounded bg-[#FFD000] text-[#111111] font-mono-tabular text-[10px] font-bold flex items-center justify-center">A</span>
+                <span>Opéra</span>
+              </button>
+
+              <button id="pin-dropoff" type="button" style="left: 73%; top: 69%;" class="absolute -translate-x-1/2 -translate-y-1/2 z-20 flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[#111111]/95 border border-[#FF1493] text-xs font-semibold text-white cursor-grab">
+                <span class="w-4 h-4 rounded bg-[#E91E63] text-white font-mono-tabular text-[10px] font-bold flex items-center justify-center">B</span>
+                <span>Station F</span>
+              </button>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4 border-t border-white/10">
+              <div class="bg-[#1a1b22] rounded-xl p-3 border border-white/5">
+                <div class="text-[11px] text-zinc-400">Distance</div>
+                <div id="metric-dist" class="font-mono-tabular text-base font-semibold text-white mt-0.5">6.8 km</div>
+              </div>
+              <div class="bg-[#1a1b22] rounded-xl p-3 border border-white/5">
+                <div class="text-[11px] text-zinc-400">Tarif HT</div>
+                <div id="metric-quote" class="font-mono-tabular text-base font-semibold text-[#FFD000] mt-0.5">18,04 €</div>
+              </div>
+              <div class="bg-[#1a1b22] rounded-xl p-3 border border-white/5">
+                <div class="text-[11px] text-zinc-400">Chrono</div>
+                <div id="metric-eta" class="font-mono-tabular text-base font-semibold text-[#FF4D94] mt-0.5">23:00</div>
+              </div>
+              <div class="bg-[#1a1b22] rounded-xl p-3 border border-white/5">
+                <div class="text-[11px] text-zinc-400">CO₂ économisé</div>
+                <div id="metric-co2" class="font-mono-tabular text-base font-semibold text-zinc-100 mt-0.5">-1.43 kg</div>
+              </div>
+            </div>
+
+            <button type="button" id="dispatch-route-btn" class="mt-4 w-full py-3 px-5 rounded-xl bg-[#E91E63] hover:bg-[#FF1493] text-white font-semibold text-sm glow-pink cursor-pointer" data-i18n="sim_btn">
+              Expédier ce trajet
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Deep Charcoal Live Stats Ticker -->
+    <section class="border-y border-[#111111]/15 bg-[#111111] text-white">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 py-9 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div>
+          <div class="font-mono-tabular text-3xl font-bold text-white">142 840+</div>
+          <div class="text-sm font-semibold text-[#FFD000] mt-1">Livraisons réalisées</div>
+          <p class="text-xs text-zinc-400 mt-1">Courses urbaines validées sur 12 mois</p>
+        </div>
+        <div>
+          <div class="font-mono-tabular text-3xl font-bold text-white">&lt; 35 min</div>
+          <div class="text-sm font-semibold text-[#FFD000] mt-1">Délai moyen porte-à-porte</div>
+          <p class="text-xs text-zinc-400 mt-1">Sur Paris intra-muros et métropoles</p>
+        </div>
+        <div>
+          <div class="font-mono-tabular text-3xl font-bold text-white">480</div>
+          <div class="text-sm font-semibold text-[#FFD000] mt-1">Coursiers actifs</div>
+          <p class="text-xs text-zinc-400 mt-1">Flotte 100% décarbonée disponible 7j/7</p>
+        </div>
+        <div>
+          <div class="font-mono-tabular text-3xl font-bold text-white">99.4%</div>
+          <div class="text-sm font-semibold text-[#FFD000] mt-1">Satisfaction &amp; SLA</div>
+          <p class="text-xs text-zinc-400 mt-1">Preuve photo et signature numérique</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Bento Services Grid (Clean White + Dark Charcoal Blend) -->
+    <section id="services" class="py-20 px-4 sm:px-6 max-w-6xl mx-auto">
+      <div class="max-w-2xl mb-10">
+        <p class="text-xs font-bold text-[#C2185B] mb-2">Capacités &amp; Flotte</p>
+        <h2 class="font-display text-3xl sm:text-4xl font-bold text-[#111111]">Un véhicule calibré pour chaque urgence urbaine.</h2>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div class="md:col-span-2 rounded-2xl bg-[#111111] text-white border border-[#111111]/15 p-6 sm:p-8 shadow-lg">
+          <p class="font-mono-tabular text-xs font-semibold text-[#FFD000] mb-2">01.</p>
+          <h3 class="font-display text-2xl font-bold text-white">Coursier Moto &amp; Scooter Express</h3>
+          <p class="text-sm text-zinc-300 mt-2 max-w-xl">Plis juridiques, échantillons médicaux et achats retail urgents livrés en point-à-point jusqu’à 15 kg en moins de 35 minutes.</p>
+        </div>
+        <div class="rounded-2xl bg-white border border-[#111111]/10 p-6 shadow-sm">
+          <p class="font-mono-tabular text-xs font-semibold text-[#C2185B] mb-2">02.</p>
+          <h3 class="font-display text-xl font-bold text-[#111111]">Vélo-Cargo Électrique</h3>
+          <p class="text-sm text-zinc-600 mt-2">Logistique Crit’Air 0 jusqu’à 150 kg avec accès prioritaire aux zones piétonnes.</p>
+        </div>
+        <div class="rounded-2xl bg-white border border-[#111111]/10 p-6 shadow-sm">
+          <p class="font-mono-tabular text-xs font-semibold text-[#C2185B] mb-2">03.</p>
+          <h3 class="font-display text-xl font-bold text-[#111111]">Utilitaire &amp; Fret B2B</h3>
+          <p class="text-sm text-zinc-600 mt-2">Transferts inter-boutiques et palettes événementielles jusqu’à 1 200 kg.</p>
+        </div>
+        <div id="tarifs" class="md:col-span-2 rounded-2xl bg-white border border-[#111111]/10 p-6 sm:p-8 shadow-sm">
+          <p class="font-mono-tabular text-xs font-semibold text-[#C2185B] mb-2">04.</p>
+          <h3 class="font-display text-2xl font-bold text-[#111111]">API Temps Réel &amp; E-Commerce</h3>
+          <pre class="mt-4 p-4 rounded-xl bg-[#111111] border border-[#111111]/15 text-xs font-mono-tabular text-zinc-100 overflow-x-auto">POST /v1/dispatches -> { "fare_eur": 14.90, "eta_min": 24, "track_url": "https://track.rapidmate.fr/9821f" }</pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3-Step How It Works -->
+    <section class="py-16 px-4 sm:px-6 max-w-6xl mx-auto border-t border-[#111111]/10">
+      <h2 class="font-display text-3xl font-bold text-[#111111] mb-8">De la demande à la signature en trois temps.</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div class="rounded-2xl bg-[#FFD000] border border-[#111111] p-6">
+          <p class="font-mono-tabular text-sm font-bold text-[#C2185B]">01.</p>
+          <h3 class="font-display text-lg font-bold text-[#111111] mt-2">Commande en 3 clics</h3>
+          <p class="text-sm text-[#111111]/85 mt-2">Saisissez vos adresses, choisissez le gabarit et verrouillez votre tarif fixe HT.</p>
+        </div>
+        <div class="rounded-2xl bg-white border border-[#111111]/10 p-6">
+          <p class="font-mono-tabular text-sm font-bold text-[#C2185B]">02.</p>
+          <h3 class="font-display text-lg font-bold text-[#111111] mt-2">Suivi GPS instantané</h3>
+          <p class="text-sm text-zinc-600 mt-2">Allocation automatique du coursier le plus proche et lien temps réel partagé.</p>
+        </div>
+        <div class="rounded-2xl bg-white border border-[#111111]/10 p-6">
+          <p class="font-mono-tabular text-sm font-bold text-[#C2185B]">03.</p>
+          <h3 class="font-display text-lg font-bold text-[#111111] mt-2">Preuve de livraison</h3>
+          <p class="text-sm text-zinc-600 mt-2">Signature numérique, code PIN et photo géolocalisée archivés instantanément.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Social Proof & Contact -->
+    <section id="entreprises" class="py-16 px-4 sm:px-6 max-w-6xl mx-auto border-t border-[#111111]/10">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+        <figure class="rounded-2xl bg-white border border-[#111111]/10 p-6 shadow-sm">
+          <p class="font-mono-tabular text-xs font-semibold text-[#C2185B] mb-2">Délai réduit de 3h à 28 min sur 1 400 transferts/mois</p>
+          <blockquote class="text-base text-[#111111]">“98% de nos réassorts entre boutiques parisiennes arrivent sous 28 minutes avec preuve photo.”</blockquote>
+          <figcaption class="text-xs text-zinc-600 mt-4">Camille Delacroix · Directrice des Opérations · Maison Verrière Paris</figcaption>
+        </figure>
+        <figure class="rounded-2xl bg-white border border-[#111111]/10 p-6 shadow-sm">
+          <p class="font-mono-tabular text-xs font-semibold text-[#C2185B] mb-2">+22% de conversion checkout express en 90 jours</p>
+          <blockquote class="text-base text-[#111111]">“L’intégration API PrestaShop a transformé notre livraison intra-muros sans surcharger nos équipes.”</blockquote>
+          <figcaption class="text-xs text-zinc-600 mt-4">Thomas Béranger · VP Supply Chain · Atelier Lumière Optique</figcaption>
+        </figure>
+      </div>
+
+      <div id="contact" class="rounded-2xl bg-[#FFD000] border border-[#111111]/15 p-6 sm:p-10 shadow-xl">
+        <h2 class="font-display text-2xl font-bold text-[#111111] mb-4">Ouvrir un compte entreprise ou commander</h2>
+        <form id="contact-form" class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <input type="text" required placeholder="Nom ou Société" class="rounded-xl bg-[#111111] border border-[#111111] px-4 py-2.5 text-sm text-white placeholder:text-zinc-400" />
+          <input type="email" required placeholder="operations@entreprise.fr" class="rounded-xl bg-[#111111] border border-[#111111] px-4 py-2.5 text-sm text-white placeholder:text-zinc-400" />
+          <button type="submit" class="rounded-xl bg-[#E91E63] hover:bg-[#FF1493] text-white font-bold text-sm py-2.5 px-5 glow-pink cursor-pointer">Valider</button>
+        </form>
+        <p id="contact-feedback" class="hidden text-xs font-semibold text-[#111111] mt-3">Demande transmise au dispatch Paris.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="bg-[#111111] text-white border-t border-white/10 py-10 px-4 sm:px-6 text-xs text-zinc-400">
+    <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-4">
+      <div class="inline-flex items-center gap-2.5">
+        <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-[#FFD000]">
+          <svg width="20" height="20" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+            <path d="M16 3C10.48 3 6 7.36 6 12.74C6 19.65 14.32 27.95 15.32 28.92C15.7 29.29 16.3 29.29 16.68 28.92C17.68 27.95 26 19.65 26 12.74C26 7.36 21.52 3 16 3Z" fill="#E91E63" />
+            <path d="M10.5 11.8C10.5 8.85 12.95 6.8 16 6.8C19.05 6.8 21.5 8.85 21.5 11.8H10.5Z" fill="#FF1493" stroke="#111111" stroke-width="1.2" />
+            <path d="M10 11.8H24.2C24.75 11.8 25.1 12.42 24.74 12.84C23.72 14.02 21.45 14.5 18.8 14.5H10.6C10.25 14.5 10 14.2 10 13.85V11.8Z" fill="#111111" />
+            <circle cx="16" cy="18.2" r="2.2" fill="#111111" />
+          </svg>
+        </span>
+        <span class="font-display font-bold text-white text-sm">Rapidmate</span>
+      </div>
+      <span>© 2026 Rapidmate SAS — 14 Rue de Turbigo, 75001 Paris · Mentions légales · CGV · RGPD</span>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      const canvas = document.getElementById('dispatch-canvas');
+      const ctx = canvas.getContext('2d');
+      let W = window.innerWidth, H = window.innerHeight;
+      const resize = () => {
+        W = window.innerWidth; H = window.innerHeight;
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        canvas.width = W * dpr; canvas.height = H * dpr;
+        canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      };
+      resize();
+      window.addEventListener('resize', resize);
+
+      const couriers = [];
+      const pings = [];
+      let currentVehicle = 'moto';
+      let currentLocale = 'fr';
+
+      function spawnCourier(tx, ty, veh) {
+        const v = veh || (Math.random() > 0.4 ? currentVehicle : 'van');
+        const sy = H + 30;
+        const sx = Math.max(40, Math.min(W - 40, tx + (Math.random() - 0.5) * 200));
+        const dist = Math.hypot(tx - sx, ty - sy);
+        couriers.push({ sx, sy, tx, ty, x: sx, y: sy, p: 0, dur: Math.max(380, dist * 0.65), veh: v, trail: [], angle: Math.atan2(ty - sy, tx - sx) });
+      }
+
+      let downPos = null;
+      window.addEventListener('pointerdown', (e) => {
+        if (e.target.closest('[data-no-dispatch="true"]')) { downPos = null; return; }
+        downPos = { x: e.clientX, y: e.clientY };
+      }, { passive: true });
+
+      window.addEventListener('pointerup', (e) => {
+        if (!downPos) return;
+        if (Math.hypot(e.clientX - downPos.x, e.clientY - downPos.y) <= 12) spawnCourier(e.clientX, e.clientY);
+        downPos = null;
+      }, { passive: true });
+
+      let last = performance.now();
+      function frame(now) {
+        const dt = Math.min(48, now - last); last = now;
+        ctx.clearRect(0, 0, W, H);
+
+        for (let i = couriers.length - 1; i >= 0; i--) {
+          const c = couriers[i];
+          c.p = Math.min(1, c.p + dt / c.dur);
+          const ease = c.p === 1 ? 1 : 1 - Math.pow(2, -10 * c.p);
+          c.x = c.sx + (c.tx - c.sx) * ease;
+          c.y = c.sy + (c.ty - c.sy) * ease;
+          c.trail.push({ x: c.x, y: c.y, age: 0 });
+          c.trail = c.trail.filter((t) => (t.age += dt) < 350);
+
+          for (let t = 1; t < c.trail.length; t++) {
+            const a = 1 - c.trail[t].age / 350;
+            ctx.strokeStyle = `rgba(255,20,147,${a * 0.85})`;
+            ctx.lineWidth = Math.max(2, 5.5 * a);
+            ctx.lineCap = 'round';
+            ctx.beginPath(); ctx.moveTo(c.trail[t - 1].x, c.trail[t - 1].y); ctx.lineTo(c.trail[t].x, c.trail[t].y); ctx.stroke();
+
+            ctx.strokeStyle = `rgba(255,208,0,${a * 0.65})`;
+            ctx.lineWidth = Math.max(1, 2.2 * a);
+            ctx.beginPath(); ctx.moveTo(c.trail[t - 1].x, c.trail[t - 1].y); ctx.lineTo(c.trail[t].x, c.trail[t].y); ctx.stroke();
+          }
+
+          ctx.save(); ctx.translate(c.x, c.y); ctx.rotate(c.angle);
+          ctx.fillStyle = '#111111'; ctx.strokeStyle = c.veh === 'van' ? '#FFD000' : '#FF1493'; ctx.lineWidth = 2;
+          ctx.beginPath(); ctx.roundRect(-14, -6, 28, 12, 5); ctx.fill(); ctx.stroke();
+          ctx.fillStyle = '#E91E63'; ctx.beginPath(); ctx.roundRect(-11, -4, 9, 8, 2); ctx.fill();
+          ctx.restore();
+
+          if (c.p >= 1) {
+            pings.push({ x: c.tx, y: c.ty, age: 0, max: 1150 });
+            couriers.splice(i, 1);
+          }
+        }
+
+        for (let i = pings.length - 1; i >= 0; i--) {
+          const p = pings[i]; p.age += dt;
+          const t = p.age / p.max;
+          if (t >= 1) { pings.splice(i, 1); continue; }
+          const f = 1 - t;
+          ctx.save();
+          ctx.strokeStyle = `rgba(233,30,99,${f * 0.95})`; ctx.lineWidth = 2.4;
+          ctx.beginPath(); ctx.arc(p.x, p.y, 8 + t * 44, 0, Math.PI * 2); ctx.stroke();
+          ctx.strokeStyle = `rgba(255,193,7,${f * 0.8})`; ctx.lineWidth = 1.6;
+          ctx.beginPath(); ctx.arc(p.x, p.y, 4 + t * 56, 0, Math.PI * 2); ctx.stroke();
+          ctx.font = '600 11px "JetBrains Mono", monospace';
+          const lbl = currentLocale === 'fr' ? 'Course envoyée' : 'Order Dispatched';
+          const w = ctx.measureText(lbl).width + 20;
+          ctx.fillStyle = `rgba(17,17,17,${f * 0.95})`; ctx.strokeStyle = `rgba(255,20,147,${f * 0.9})`;
+          ctx.beginPath(); ctx.roundRect(p.x - w / 2, p.y - 30 - t * 12, w, 24, 7); ctx.fill(); ctx.stroke();
+          ctx.fillStyle = `rgba(255,255,255,${f})`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+          ctx.fillText(lbl, p.x, p.y - 18 - t * 12);
+          ctx.restore();
+        }
+        requestAnimationFrame(frame);
+      }
+      requestAnimationFrame(frame);
+
+      const mapEl = document.getElementById('sim-map');
+      const pinA = document.getElementById('pin-pickup');
+      const pinB = document.getElementById('pin-dropoff');
+      const routePath = document.getElementById('sim-route-path');
+      let posA = { x: 30, y: 34 }, posB = { x: 73, y: 69 }, dragWhich = null;
+      let etaSeconds = 23 * 60;
+
+      function recalc() {
+        const dist = Math.max(1.2, Math.hypot((posB.x - posA.x) * 0.14, (posB.y - posA.y) * 0.11) * 1.24);
+        const rates = { moto: [7.5, 1.55, 28, 0.21], cargo: [8.2, 1.4, 21, 0.28], van: [19, 2.35, 20, 0.34] }[currentVehicle];
+        const quote = (rates[0] + dist * rates[1]).toFixed(2).replace('.', ',');
+        const etaMin = Math.max(11, Math.min(48, Math.round((dist / rates[2]) * 60 + 8)));
+        etaSeconds = etaMin * 60;
+        document.getElementById('metric-dist').textContent = dist.toFixed(1) + ' km';
+        document.getElementById('metric-quote').textContent = quote + ' €';
+        document.getElementById('metric-co2').textContent = '-' + (dist * rates[3]).toFixed(2) + ' kg';
+        const mx = (posA.x + posB.x) / 2, my = (posA.y + posB.y) / 2 - Math.abs(posB.x - posA.x) * 0.16;
+        routePath.setAttribute('d', `M ${posA.x} ${posA.y} Q ${mx} ${my} ${posB.x} ${posB.y}`);
+      }
+
+      setInterval(() => {
+        etaSeconds = etaSeconds > 1 ? etaSeconds - 1 : 1200;
+        const m = String(Math.floor(etaSeconds / 60)).padStart(2, '0');
+        const s = String(etaSeconds % 60).padStart(2, '0');
+        document.getElementById('metric-eta').textContent = `${m}:${s}`;
+      }, 1000);
+
+      pinA.addEventListener('pointerdown', (e) => { e.stopPropagation(); dragWhich = 'a'; pinA.setPointerCapture(e.pointerId); });
+      pinB.addEventListener('pointerdown', (e) => { e.stopPropagation(); dragWhich = 'b'; pinB.setPointerCapture(e.pointerId); });
+      mapEl.addEventListener('pointermove', (e) => {
+        if (!dragWhich) return;
+        const r = mapEl.getBoundingClientRect();
+        const x = Math.max(8, Math.min(92, ((e.clientX - r.left) / r.width) * 100));
+        const y = Math.max(12, Math.min(88, ((e.clientY - r.top) / r.height) * 100));
+        if (dragWhich === 'a') { posA = { x, y }; pinA.style.left = x + '%'; pinA.style.top = y + '%'; }
+        else { posB = { x, y }; pinB.style.left = x + '%'; pinB.style.top = y + '%'; }
+        recalc();
+      });
+      window.addEventListener('pointerup', () => { dragWhich = null; });
+
+      document.querySelectorAll('.veh-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          currentVehicle = btn.dataset.vehicle;
+          document.querySelectorAll('.veh-btn').forEach((b) => {
+            b.className = b === btn
+              ? 'veh-btn px-3 py-1.5 rounded-md text-xs font-bold bg-[#FFD000] text-[#111111] cursor-pointer'
+              : 'veh-btn px-3 py-1.5 rounded-md text-xs font-medium text-zinc-300 cursor-pointer';
+          });
+          recalc();
+        });
+      });
+
+      document.getElementById('dispatch-route-btn').addEventListener('click', () => {
+        const r = pinB.getBoundingClientRect();
+        spawnCourier(r.left + r.width / 2, r.top + r.height / 2, currentVehicle);
+      });
+
+      document.getElementById('open-demo-btn').addEventListener('click', () => {
+        [0.25, 0.5, 0.75].forEach((rx, idx) => {
+          setTimeout(() => spawnCourier(W * rx, H * (0.35 + idx * 0.12)), idx * 140);
+        });
+      });
+
+      document.getElementById('contact-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        document.getElementById('contact-feedback').classList.remove('hidden');
+        spawnCourier(W * 0.7, H * 0.55);
+      });
+
+      const dict = {
+        fr: {
+          nav_cta: 'Démarrer',
+          hero_title: 'La logistique urbaine instantanée, expédiée en quelques secondes.',
+          hero_cta1: 'Commander un coursier',
+          hero_cta2: 'Voir la démo interactive',
+          sim_btn: 'Expédier ce trajet'
+        },
+        en: {
+          nav_cta: 'Get Started',
+          hero_title: 'Instant urban logistics across France, dispatched in seconds.',
+          hero_cta1: 'Command a Courier Now',
+          hero_cta2: 'Watch Interactive Demo',
+          sim_btn: 'Dispatch This Route'
+        }
+      };
+
+      document.querySelectorAll('.lang-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          currentLocale = btn.dataset.lang;
+          document.querySelectorAll('.lang-btn').forEach((b) => {
+            b.className = b === btn
+              ? 'lang-btn px-2.5 py-1 rounded-md text-xs font-bold uppercase bg-[#111111] text-white cursor-pointer'
+              : 'lang-btn px-2.5 py-1 rounded-md text-xs font-bold uppercase text-[#111111]/75 hover:text-[#111111] cursor-pointer';
+          });
+          Object.entries(dict[currentLocale]).forEach(([k, v]) => {
+            const el = document.querySelector(`[data-i18n="${k}"]`);
+            if (el) el.textContent = v;
+          });
+        });
+      });
+    })();
+  </script>
+</body>
+</html>
