@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { CheckCircle2, Lock, ShieldCheck, Sparkles, Truck } from 'lucide-react';
+import { ArrowRight, CheckCircle2, Lock, ShieldCheck, Sparkles, Truck } from 'lucide-react';
 import type { CopyBundle } from '../i18n';
 import type { VehicleType } from './TapDispatchCanvas';
 
@@ -8,6 +8,7 @@ interface SocialProofAndQuoteProps {
   contactCopy: CopyBundle['contact'];
   vehiclesCopy: CopyBundle['sim']['vehicles'];
   selectedVehicle: VehicleType;
+  onOpenPartners?: () => void;
 }
 
 export function SocialProofAndQuote({
@@ -15,6 +16,7 @@ export function SocialProofAndQuote({
   contactCopy,
   vehiclesCopy,
   selectedVehicle,
+  onOpenPartners,
 }: SocialProofAndQuoteProps) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -76,14 +78,26 @@ export function SocialProofAndQuote({
         id="entreprises"
         className="py-20 sm:py-24 px-4 sm:px-6 max-w-6xl mx-auto border-t border-[#111111]/10"
       >
-        <div className="max-w-2xl mb-12">
-          <p className="text-xs font-bold tracking-wide text-[#C2185B] mb-3">
-            {proofCopy.eyebrow}
-          </p>
-          <h2 className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-[#111111] text-balance">
-            {proofCopy.title}
-          </h2>
-          <p className="text-zinc-600 text-base mt-4 leading-relaxed">{proofCopy.subtitle}</p>
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+          <div className="max-w-2xl">
+            <p className="text-xs font-bold tracking-wide text-[#C2185B] mb-3">
+              {proofCopy.eyebrow}
+            </p>
+            <h2 className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-[#111111] text-balance">
+              {proofCopy.title}
+            </h2>
+            <p className="text-zinc-600 text-base mt-4 leading-relaxed">{proofCopy.subtitle}</p>
+          </div>
+          {onOpenPartners && (
+            <button
+              type="button"
+              onClick={onOpenPartners}
+              className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-[#111111] hover:bg-[#E91E63] text-white text-xs font-bold transition-colors whitespace-nowrap shrink-0 self-start md:self-end cursor-pointer"
+            >
+              <span>{proofCopy.partnersCta}</span>
+              <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
+            </button>
+          )}
         </div>
 
         {/* Attributable Testimonials (Clean White Cards) */}

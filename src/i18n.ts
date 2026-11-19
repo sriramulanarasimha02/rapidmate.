@@ -1,10 +1,24 @@
 export type Locale = 'fr' | 'en';
 
+export type PartnerCategory = 'all' | 'pizza' | 'sushi' | 'cloud';
+
+export interface PartnerItem {
+  id: string;
+  name: string;
+  category: Exclude<PartnerCategory, 'all'>;
+  meta: string;
+  summary: string;
+  avgTime: string;
+  fleet: string;
+  vehicle: 'moto' | 'cargo' | 'van';
+  actionLabel: string;
+}
+
 export interface CopyBundle {
   nav: {
     services: string;
+    partners: string;
     tarifs: string;
-    entreprises: string;
     contact: string;
     cta: string;
   };
@@ -94,6 +108,7 @@ export interface CopyBundle {
     eyebrow: string;
     title: string;
     subtitle: string;
+    partnersCta: string;
     guarantees: Array<{ title: string; detail: string }>;
     testimonials: Array<{
       quote: string;
@@ -102,6 +117,28 @@ export interface CopyBundle {
       company: string;
       outcome: string;
     }>;
+  };
+  partnersPage: {
+    backBtn: string;
+    eyebrow: string;
+    title: string;
+    subtitle: string;
+    filters: Array<{ id: PartnerCategory; label: string }>;
+    avgTimeLabel: string;
+    fleetLabel: string;
+    items: PartnerItem[];
+    collectiveCard: {
+      meta: string;
+      title: string;
+      summary: string;
+      stats: Array<{ label: string; value: string }>;
+      cta: string;
+    };
+    bottomBanner: {
+      title: string;
+      subtitle: string;
+      cta: string;
+    };
   };
   contact: {
     eyebrow: string;
@@ -167,8 +204,8 @@ export const COPY: Record<Locale, CopyBundle> = {
   fr: {
     nav: {
       services: 'Services',
+      partners: 'Partenaires',
       tarifs: 'Tarifs',
-      entreprises: 'Entreprises',
       contact: 'Contact',
       cta: 'Démarrer',
     },
@@ -307,6 +344,7 @@ export const COPY: Record<Locale, CopyBundle> = {
       eyebrow: 'Confiance & Conformité',
       title: 'Adopté par les directions opérationnelles exigeantes.',
       subtitle: 'Des standards de sécurité et de ponctualité pensés pour les flux critiques.',
+      partnersCta: 'Découvrir nos partenaires restauration & retail',
       guarantees: [
         { title: '100% Crit’Air 0 & ZFE', detail: 'Flotte décarbonée autorisée dans toutes les métropoles françaises.' },
         { title: 'Conformité RGPD & ISO 27001', detail: 'Données hébergées en France et liens de suivi anonymisés.' },
@@ -331,6 +369,89 @@ export const COPY: Record<Locale, CopyBundle> = {
           outcome: '+22% de conversion checkout express en 90 jours',
         },
       ],
+    },
+    partnersPage: {
+      backBtn: 'Retour à l’accueil',
+      eyebrow: 'Réseau Partenaires · Restauration & Dark Kitchens',
+      title: 'Ils livrent chaud, frais et à l’heure avec Rapidmate.',
+      subtitle:
+        'Des enseignes pizza grand volume aux comptoirs sushi et cloud kitchens parisiennes, nos coursiers absorbent vos pics de commande sans commission marketplace.',
+      filters: [
+        { id: 'all', label: 'Tous les partenaires' },
+        { id: 'pizza', label: 'Pizza & QSR' },
+        { id: 'sushi', label: 'Sushi & Frais' },
+        { id: 'cloud', label: 'Cloud Kitchens' },
+      ],
+      avgTimeLabel: 'Délai moyen',
+      fleetLabel: 'Flotte dédiée',
+      items: [
+        {
+          id: 'dominos',
+          name: "Domino's Pizza",
+          category: 'pizza',
+          meta: 'Paris & Petite Couronne · QSR Pizza',
+          summary:
+            'Renfort moto électrique avec caissons isothermes 85 °C lors des soirées de match et pics du vendredi.',
+          avgTime: '21 min',
+          fleet: 'Moto thermique & électrique',
+          vehicle: 'moto',
+          actionLabel: 'Tester cette flotte',
+        },
+        {
+          id: 'pizzahut',
+          name: 'Pizza Hut',
+          category: 'pizza',
+          meta: 'Île-de-France · Multi-Zones Express',
+          summary:
+            'Absorption instantanée des débordements de commandes directes en soirée avec dispatch multi-adresses sans commission.',
+          avgTime: '24 min',
+          fleet: 'Scooter & Cargo rapide',
+          vehicle: 'moto',
+          actionLabel: 'Tester cette flotte',
+        },
+        {
+          id: 'yele-sushi',
+          name: 'Yele Sushi',
+          category: 'sushi',
+          meta: 'Paris 8e, 11e & 16e · Sushi & Sashimi',
+          summary:
+            'Sacs réfrigérés et plateaux anti-basculement préservant la température fraîche et le dressage des nigiris.',
+          avgTime: '22 min',
+          fleet: 'Vélo-Cargo & Moto isotherme',
+          vehicle: 'cargo',
+          actionLabel: 'Tester cette flotte',
+        },
+        {
+          id: 'atelier-cloud',
+          name: 'Atelier Cloud Kitchens',
+          category: 'cloud',
+          meta: 'Bastille & Opéra · Hub Multi-Enseignes',
+          summary:
+            'Six marques virtuelles (smash burgers, ramen, poke) orchestrées depuis un seul comptoir via notre API Webhook.',
+          avgTime: '26 min',
+          fleet: 'Flotte mixte Cargo & Moto',
+          vehicle: 'cargo',
+          actionLabel: 'Tester cette flotte',
+        },
+      ],
+      collectiveCard: {
+        meta: 'La Défense & Le Marais · Collectif Dark Kitchens',
+        title: 'Kitoko Bowl, Street Tacos & 12 cuisines virtuelles',
+        summary:
+          'Vagues planifiées de vélos-cargos sur les pics déjeuner 11h45–13h45 pour livrer les quartiers d’affaires en zéro émission.',
+        stats: [
+          { label: 'Débit midi', value: '250+ commandes / h' },
+          { label: 'Émissions CO₂', value: '0 g / km' },
+          { label: 'Intégration', value: 'API Direct POS' },
+        ],
+        cta: 'Connecter votre cuisine',
+      },
+      bottomBanner: {
+        title: 'Vous gérez un restaurant, une enseigne QSR ou une cloud kitchen ?',
+        subtitle:
+          'Déployez des coursiers dédiés en marque blanche ou connectez votre caisse POS en moins de 48 heures.',
+        cta: 'Demander un tarif partenaire',
+      },
     },
     contact: {
       eyebrow: 'Devis & Compte Entreprise',
@@ -404,8 +525,8 @@ export const COPY: Record<Locale, CopyBundle> = {
   en: {
     nav: {
       services: 'Services',
+      partners: 'Partners',
       tarifs: 'Pricing',
-      entreprises: 'Enterprise',
       contact: 'Contact',
       cta: 'Get Started',
     },
@@ -544,6 +665,7 @@ export const COPY: Record<Locale, CopyBundle> = {
       eyebrow: 'Trust & Compliance',
       title: 'Trusted by Parisian brands with zero margin for delay.',
       subtitle: 'Built to meet strict French enterprise compliance, security, and environmental mandates.',
+      partnersCta: 'Explore food & cloud kitchen partners',
       guarantees: [
         { title: '100% Crit’Air 0 & ZFE Ready', detail: 'Zero-emission access across restricted French city centers.' },
         { title: 'GDPR & ISO 27001 Aligned', detail: 'Data hosted in France with anonymized recipient tracking URLs.' },
@@ -568,6 +690,89 @@ export const COPY: Record<Locale, CopyBundle> = {
           outcome: '+22% express checkout conversion in 90 days',
         },
       ],
+    },
+    partnersPage: {
+      backBtn: 'Back to Home',
+      eyebrow: 'Partner Network · Restaurants & Cloud Kitchens',
+      title: 'Brands delivering hot, fresh, and on-time with Rapidmate.',
+      subtitle:
+        'From high-volume pizza chains to delicate sushi counters and multi-brand cloud kitchens, our couriers power direct orders with zero marketplace commission.',
+      filters: [
+        { id: 'all', label: 'All Partners' },
+        { id: 'pizza', label: 'Pizza & QSR' },
+        { id: 'sushi', label: 'Sushi & Fresh' },
+        { id: 'cloud', label: 'Cloud Kitchens' },
+      ],
+      avgTimeLabel: 'Avg delivery',
+      fleetLabel: 'Primary fleet',
+      items: [
+        {
+          id: 'dominos',
+          name: "Domino's Pizza",
+          category: 'pizza',
+          meta: 'Paris & Inner Suburbs · QSR Pizza',
+          summary:
+            'Electric moto surge fleet equipped with 85 °C thermal hot-boxes for match nights and Friday dinner peaks.',
+          avgTime: '21 min',
+          fleet: 'Express Moto Fleet',
+          vehicle: 'moto',
+          actionLabel: 'Test This Fleet',
+        },
+        {
+          id: 'pizzahut',
+          name: 'Pizza Hut',
+          category: 'pizza',
+          meta: 'Île-de-France · Multi-Zone Express',
+          summary:
+            'Instant evening overflow courier dispatch across high-volume hubs for direct zero-commission checkout orders.',
+          avgTime: '24 min',
+          fleet: 'Scooter & Urban Cargo',
+          vehicle: 'moto',
+          actionLabel: 'Test This Fleet',
+        },
+        {
+          id: 'yele-sushi',
+          name: 'Yele Sushi',
+          category: 'sushi',
+          meta: 'Paris 8e, 11e & 16e · Sushi & Sashimi',
+          summary:
+            'Chilled insulated bags with anti-tilt stabilizing trays so fresh nigiri, sashimi, and maki arrive intact.',
+          avgTime: '22 min',
+          fleet: 'Cargo Bike & Moto',
+          vehicle: 'cargo',
+          actionLabel: 'Test This Fleet',
+        },
+        {
+          id: 'atelier-cloud',
+          name: 'Atelier Cloud Kitchens',
+          category: 'cloud',
+          meta: 'Bastille & Opéra · Multi-Brand Hub',
+          summary:
+            'Six virtual restaurant concepts (smash burgers, ramen, poke) dispatched from a single pass-through via webhook API.',
+          avgTime: '26 min',
+          fleet: 'Mixed Cargo & Moto',
+          vehicle: 'cargo',
+          actionLabel: 'Test This Fleet',
+        },
+      ],
+      collectiveCard: {
+        meta: 'La Défense & Le Marais · Dark Kitchen Collective',
+        title: 'Kitoko Bowl, Street Tacos & 12 virtual kitchens',
+        summary:
+          'Scheduled zero-emission cargo bike waves during the 11:45–13:45 lunch rush feeding Paris business districts.',
+        stats: [
+          { label: 'Lunch throughput', value: '250+ orders / hr' },
+          { label: 'Tailpipe CO₂', value: '0 g / km' },
+          { label: 'Integration', value: 'Direct POS API' },
+        ],
+        cta: 'Connect Your Kitchen',
+      },
+      bottomBanner: {
+        title: 'Operating a restaurant chain, sushi bar, or cloud kitchen?',
+        subtitle:
+          'Deploy white-label express riders or integrate your POS checkout in under 48 hours.',
+        cta: 'Request Partner Rates',
+      },
     },
     contact: {
       eyebrow: 'Enterprise & Instant Quote',

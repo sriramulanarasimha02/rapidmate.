@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { ArrowRight, Menu, Play, X } from 'lucide-react';
 import { COPY, type Locale } from './i18n';
 import { RapidmateLogo } from './components/RapidmateLogo';
@@ -8,10 +8,16 @@ import { StatsTicker } from './components/StatsTicker';
 import { BentoServices } from './components/BentoServices';
 import { HowItWorks } from './components/HowItWorks';
 import { SocialProofAndQuote } from './components/SocialProofAndQuote';
+import { PartnersPage } from './components/PartnersPage';
 import { DispatchModal, type ModalState } from './components/DispatchModal';
+
+type ActivePage = 'home' | 'partners';
 
 export default function App() {
   const [locale, setLocale] = useState<Locale>('fr');
+  const [activePage, setActivePage] = useState<ActivePage>(() =>
+    window.location.hash === '#partners' ? 'partners' : 'home',
+  );
   const [activeVehicle, setActiveVehicle] = useState<VehicleType>('moto');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [modal, setModal] = useState<ModalState>({ type: 'closed' });
@@ -20,6 +26,40 @@ export default function App() {
   const [newsletterState, setNewsletterState] = useState<'idle' | 'ok' | 'err'>('idle');
 
   const t = COPY[locale];
+
+  useEffect(() => {
+    const onHashChange = () => {
+      if (window.location.hash === '#partners') {
+        setActivePage('partners');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else if (activePage === 'partners' && window.location.hash !== '#partners') {
+        setActivePage('home');
+      }
+    };
+    window.addEventListener('hashchange', onHashChange);
+    return () => window.removeEventListener('hashchange', onHashChange);
+  }, [activePage]);
+
+  const navigateTo = useCallback((page: ActivePage, sectionId?: string) => {
+    setActivePage(page);
+    setMobileMenuOpen(false);
+    if (page === 'partners') {
+      window.location.hash = 'partners';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    if (sectionId) {
+      window.location.hash = sectionId;
+      window.requestAnimationFrame(() => {
+        const el = document.getElementById(sectionId);
+        el?.scrollIntoView({ behavior: 'smooth' });
+      });
+    } else {
+      window.location.hash = 'top';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, []);
 
   const launchFleetBurst = useCallback(() => {
     const coords = [
@@ -59,39 +99,51 @@ export default function App() {
       <header className="sticky top-0 z-30 h-16 glass-header">
         <div className="max-w-6xl mx-auto h-full px-4 sm:px-6 flex items-center justify-between gap-8">
           {/* Zone 1: Custom Rapidmate Pin+Cap Logo */}
-          <a href="#top" className="whitespace-nowrap shrink-0">
+          <button
+            type="button"
+            onClick={() => navigateTo('home')}
+            className="whitespace-nowrap shrink-0 cursor-pointer text-left"
+          >
             <RapidmateLogo variant="on-yellow" />
-          </a>
+          </button>
 
           {/* Zone 2: 4 Single-line Navigation Links */}
           <nav
             aria-label="Primary navigation"
             className="hidden md:flex items-center gap-7 text-sm font-semibold text-[#111111]/80"
           >
-            <a
-              href="#services"
-              className="hover:text-[#111111] transition-colors whitespace-nowrap shrink-0"
+            <button
+              type="button"
+              onClick={() => navigateTo('home', 'services')}
+              className="hover:text-[#111111] transition-colors whitespace-nowrap shrink-0 cursor-pointer"
             >
               {t.nav.services}
-            </a>
-            <a
-              href="#tarifs"
-              className="hover:text-[#111111] transition-colors whitespace-nowrap shrink-0"
+            </button>
+            <button
+              type="button"
+              onClick={() => navigateTo('partners')}
+              className={`transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
+                activePage === 'partners'
+                  ? 'text-[#C2185B] underline underline-offset-4 decoration-2'
+                  : 'hover:text-[#111111]'
+              }`}
+            >
+              {t.nav.partners}
+            </button>
+            <button
+              type="button"
+              onClick={() => navigateTo('home', 'tarifs')}
+              className="hover:text-[#111111] transition-colors whitespace-nowrap shrink-0 cursor-pointer"
             >
               {t.nav.tarifs}
-            </a>
-            <a
-              href="#entreprises"
-              className="hover:text-[#111111] transition-colors whitespace-nowrap shrink-0"
-            >
-              {t.nav.entreprises}
-            </a>
-            <a
-              href="#contact"
-              className="hover:text-[#111111] transition-colors whitespace-nowrap shrink-0"
+            </button>
+            <button
+              type="button"
+              onClick={() => navigateTo('home', 'contact')}
+              className="hover:text-[#111111] transition-colors whitespace-nowrap shrink-0 cursor-pointer"
             >
               {t.nav.contact}
-            </a>
+            </button>
           </nav>
 
           {/* Zone 3: Language Switcher (FR/EN) + Hot Magenta Primary Action */}
@@ -139,19 +191,19 @@ export default function App() {
         {/* Mobile Drawer */}
         {mobileMenuOpen && (
           <div className="md:hidden bg-[#FFD000] border-t border-[#111111]/15 px-4 py-4 space-y-3 shadow-lg">
-            <div className="flex flex-col gap-2 text-sm font-semibold text-[#111111]">
-              <a href="#services" onClick={() => setMobileMenuOpen(false)} className="py-1.5">
+            <div className="flex flex-col gap-2 text-sm font-semibold text-[#111111] items-start">
+              <button type="button" onClick={() => navigateTo('home', 'services')} className="py-1.5 cursor-pointer">
                 {t.nav.services}
-              </a>
-              <a href="#tarifs" onClick={() => setMobileMenuOpen(false)} className="py-1.5">
+              </button>
+              <button type="button" onClick={() => navigateTo('partners')} className="py-1.5 text-[#C2185B] cursor-pointer">
+                {t.nav.partners}
+              </button>
+              <button type="button" onClick={() => navigateTo('home', 'tarifs')} className="py-1.5 cursor-pointer">
                 {t.nav.tarifs}
-              </a>
-              <a href="#entreprises" onClick={() => setMobileMenuOpen(false)} className="py-1.5">
-                {t.nav.entreprises}
-              </a>
-              <a href="#contact" onClick={() => setMobileMenuOpen(false)} className="py-1.5">
+              </button>
+              <button type="button" onClick={() => navigateTo('home', 'contact')} className="py-1.5 cursor-pointer">
                 {t.nav.contact}
-              </a>
+              </button>
             </div>
             <button
               type="button"
@@ -167,109 +219,124 @@ export default function App() {
         )}
       </header>
 
-      <main id="top">
-        {/* Vibrant Mustard/Gold Yellow Hero Section */}
-        <section className="relative bg-gradient-to-br from-[#FFD000] via-[#FFD000] to-[#FFC107] pt-12 pb-16 sm:pt-16 sm:pb-24 px-4 sm:px-6 overflow-hidden">
-          {/* Subtle architectural dot grid on yellow */}
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-0 opacity-20"
-            style={{
-              backgroundImage: 'radial-gradient(#111111 1px, transparent 1px)',
-              backgroundSize: '24px 24px',
+      {activePage === 'partners' ? (
+        <main>
+          <PartnersPage
+            copy={t.partnersPage}
+            onBackHome={() => navigateTo('home')}
+            onBookPartnerFleet={(partnerName, vehicle) => {
+              setActiveVehicle(vehicle);
+              setModal({
+                type: 'booking',
+                pickup: partnerName,
+                dropoff: 'Paris Centre',
+                vehicle,
+              });
             }}
           />
+        </main>
+      ) : (
+        <main id="top">
+          {/* Vibrant Mustard/Gold Yellow Hero Section */}
+          <section className="relative bg-gradient-to-br from-[#FFD000] via-[#FFD000] to-[#FFC107] pt-12 pb-16 sm:pt-16 sm:pb-24 px-4 sm:px-6 overflow-hidden">
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0 opacity-20"
+              style={{
+                backgroundImage: 'radial-gradient(#111111 1px, transparent 1px)',
+                backgroundSize: '24px 24px',
+              }}
+            />
 
-          <div className="relative max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-stretch">
-            {/* Hero Copy & Primary Actions */}
-            <div className="lg:col-span-6 flex flex-col justify-center">
-              <p className="text-xs font-bold tracking-wide text-[#9D0E43] mb-4">
-                {t.hero.kicker}
-              </p>
+            <div className="relative max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-stretch">
+              <div className="lg:col-span-6 flex flex-col justify-center">
+                <p className="text-xs font-bold tracking-wide text-[#9D0E43] mb-4">
+                  {t.hero.kicker}
+                </p>
 
-              <h1
-                className="font-display font-extrabold tracking-tight text-[#111111] text-balance leading-[1.08]"
-                style={{ fontSize: 'clamp(2.25rem, 4vw, 3.55rem)' }}
-              >
-                {t.hero.title}
-              </h1>
-
-              <p className="text-base sm:text-lg text-[#111111]/85 mt-6 leading-relaxed max-w-xl font-medium">
-                {t.hero.subtitle}
-              </p>
-
-              <div className="mt-8 flex flex-wrap items-center gap-3.5">
-                <button
-                  type="button"
-                  onClick={() => setModal({ type: 'booking', vehicle: activeVehicle })}
-                  className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-[#E91E63] hover:bg-[#FF1493] text-white font-bold text-sm glow-pink transition-all active:scale-[0.98] whitespace-nowrap shrink-0 cursor-pointer"
+                <h1
+                  className="font-display font-extrabold tracking-tight text-[#111111] text-balance leading-[1.08]"
+                  style={{ fontSize: 'clamp(2.25rem, 4vw, 3.55rem)' }}
                 >
-                  <span>{t.hero.ctaPrimary}</span>
-                  <ArrowRight className="w-4 h-4" aria-hidden="true" />
-                </button>
+                  {t.hero.title}
+                </h1>
 
-                <button
-                  type="button"
-                  onClick={handleOpenDemo}
-                  className="inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl bg-[#111111] hover:bg-[#222229] text-white font-semibold text-sm transition-colors whitespace-nowrap shrink-0 cursor-pointer"
-                >
-                  <Play className="w-4 h-4 text-[#FFD000]" aria-hidden="true" />
-                  <span>{t.hero.ctaSecondary}</span>
-                </button>
+                <p className="text-base sm:text-lg text-[#111111]/85 mt-6 leading-relaxed max-w-xl font-medium">
+                  {t.hero.subtitle}
+                </p>
+
+                <div className="mt-8 flex flex-wrap items-center gap-3.5">
+                  <button
+                    type="button"
+                    onClick={() => setModal({ type: 'booking', vehicle: activeVehicle })}
+                    className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-[#E91E63] hover:bg-[#FF1493] text-white font-bold text-sm glow-pink transition-all active:scale-[0.98] whitespace-nowrap shrink-0 cursor-pointer"
+                  >
+                    <span>{t.hero.ctaPrimary}</span>
+                    <ArrowRight className="w-4 h-4" aria-hidden="true" />
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleOpenDemo}
+                    className="inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl bg-[#111111] hover:bg-[#222229] text-white font-semibold text-sm transition-colors whitespace-nowrap shrink-0 cursor-pointer"
+                  >
+                    <Play className="w-4 h-4 text-[#FFD000]" aria-hidden="true" />
+                    <span>{t.hero.ctaSecondary}</span>
+                  </button>
+                </div>
+
+                <p className="text-xs font-medium text-[#111111]/75 mt-5">{t.hero.tapHint}</p>
               </div>
 
-              <p className="text-xs font-medium text-[#111111]/75 mt-5">{t.hero.tapHint}</p>
+              <div id="hero-simulator" className="lg:col-span-6">
+                <RouteSimulator
+                  copy={t.sim}
+                  vehicle={activeVehicle}
+                  onVehicleChange={setActiveVehicle}
+                  onDispatchRoute={(summary) =>
+                    setModal({
+                      type: 'booking',
+                      pickup: summary.pickupName,
+                      dropoff: summary.dropoffName,
+                      quoteEur: summary.quoteEur,
+                      etaMin: summary.etaMin,
+                      vehicle: summary.vehicle,
+                    })
+                  }
+                />
+              </div>
             </div>
+          </section>
 
-            {/* Hero Interactive Live Route Simulator (Dark Charcoal Glass Card) */}
-            <div id="hero-simulator" className="lg:col-span-6">
-              <RouteSimulator
-                copy={t.sim}
-                vehicle={activeVehicle}
-                onVehicleChange={setActiveVehicle}
-                onDispatchRoute={(summary) =>
-                  setModal({
-                    type: 'booking',
-                    pickup: summary.pickupName,
-                    dropoff: summary.dropoffName,
-                    quoteEur: summary.quoteEur,
-                    etaMin: summary.etaMin,
-                    vehicle: summary.vehicle,
-                  })
-                }
-              />
-            </div>
-          </div>
-        </section>
+          <StatsTicker stats={t.stats} locale={locale} />
 
-        {/* Live Stats Ticker (Deep Charcoal Band) */}
-        <StatsTicker stats={t.stats} locale={locale} />
+          <BentoServices copy={t.services} onSelectVehicle={setActiveVehicle} />
 
-        {/* Asymmetric Bento Services Grid (Clean White + Charcoal Blend) */}
-        <BentoServices copy={t.services} onSelectVehicle={setActiveVehicle} />
+          <HowItWorks copy={t.how} />
 
-        {/* 3-Step How It Works Progression */}
-        <HowItWorks copy={t.how} />
-
-        {/* Social Proof & Enterprise Quote Form */}
-        <SocialProofAndQuote
-          proofCopy={t.proof}
-          contactCopy={t.contact}
-          vehiclesCopy={t.sim.vehicles}
-          selectedVehicle={activeVehicle}
-        />
-      </main>
+          <SocialProofAndQuote
+            proofCopy={t.proof}
+            contactCopy={t.contact}
+            vehiclesCopy={t.sim.vehicles}
+            selectedVehicle={activeVehicle}
+            onOpenPartners={() => navigateTo('partners')}
+          />
+        </main>
+      )}
 
       {/* Deep Charcoal Footer with Rapidmate Pin+Cap Logo */}
       <footer className="border-t border-[#111111]/15 bg-[#111111] text-white py-14 px-4 sm:px-6">
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-10">
           <div className="md:col-span-5 space-y-4">
-            <a href="#top" className="inline-flex items-center">
+            <button
+              type="button"
+              onClick={() => navigateTo('home')}
+              className="inline-flex items-center cursor-pointer"
+            >
               <RapidmateLogo variant="on-dark" />
-            </a>
+            </button>
             <p className="text-sm text-zinc-400 max-w-sm leading-relaxed">{t.footer.tagline}</p>
 
-            {/* Newsletter Signup */}
             <form onSubmit={handleNewsletterSubmit} noValidate className="pt-2 max-w-sm">
               <label
                 htmlFor="footer-newsletter"
@@ -311,24 +378,40 @@ export default function App() {
             </h3>
             <ul className="space-y-2 text-sm text-zinc-400">
               <li>
-                <a href="#services" className="hover:text-[#FFD000] transition-colors">
+                <button
+                  type="button"
+                  onClick={() => navigateTo('home', 'services')}
+                  className="hover:text-[#FFD000] transition-colors cursor-pointer"
+                >
                   {t.nav.services}
-                </a>
+                </button>
               </li>
               <li>
-                <a href="#tarifs" className="hover:text-[#FFD000] transition-colors">
+                <button
+                  type="button"
+                  onClick={() => navigateTo('partners')}
+                  className="hover:text-[#FFD000] transition-colors cursor-pointer"
+                >
+                  {t.nav.partners}
+                </button>
+              </li>
+              <li>
+                <button
+                  type="button"
+                  onClick={() => navigateTo('home', 'tarifs')}
+                  className="hover:text-[#FFD000] transition-colors cursor-pointer"
+                >
                   {t.nav.tarifs}
-                </a>
+                </button>
               </li>
               <li>
-                <a href="#entreprises" className="hover:text-[#FFD000] transition-colors">
-                  {t.nav.entreprises}
-                </a>
-              </li>
-              <li>
-                <a href="#contact" className="hover:text-[#FFD000] transition-colors">
+                <button
+                  type="button"
+                  onClick={() => navigateTo('home', 'contact')}
+                  className="hover:text-[#FFD000] transition-colors cursor-pointer"
+                >
                   {t.nav.contact}
-                </a>
+                </button>
               </li>
             </ul>
           </div>
@@ -374,13 +457,21 @@ export default function App() {
               rapidmate.fr
             </a>
             <span aria-hidden="true">·</span>
-            <a href="#contact" className="hover:text-white transition-colors">
+            <button
+              type="button"
+              onClick={() => navigateTo('home', 'contact')}
+              className="hover:text-white transition-colors cursor-pointer"
+            >
               LinkedIn
-            </a>
+            </button>
             <span aria-hidden="true">·</span>
-            <a href="#contact" className="hover:text-white transition-colors">
+            <button
+              type="button"
+              onClick={() => navigateTo('home', 'contact')}
+              className="hover:text-white transition-colors cursor-pointer"
+            >
               X / Twitter
-            </a>
+            </button>
           </div>
         </div>
       </footer>
